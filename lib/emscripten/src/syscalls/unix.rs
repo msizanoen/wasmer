@@ -97,12 +97,12 @@ const WASM_TCSETSW: u32 = 0x5403;
 // https://github.com/wasmerio/wasmer/pull/532#discussion_r300837800
 fn translate_ioctl(wasm_ioctl: u32) -> c_ulong {
     match wasm_ioctl {
-        WASM_FIOCLEX => FIOCLEX,
-        WASM_TIOCGWINSZ => TIOCGWINSZ,
-        WASM_TIOCSPGRP => TIOCSPGRP,
-        WASM_FIONBIO => FIONBIO,
-        WASM_TCGETS => TCGETS,
-        WASM_TCSETSW => TCSETSW,
+        WASM_FIOCLEX => FIOCLEX as c_ulong,
+        WASM_TIOCGWINSZ => TIOCGWINSZ as c_ulong,
+        WASM_TIOCSPGRP => TIOCSPGRP as c_ulong,
+        WASM_FIONBIO => FIONBIO as c_ulong,
+        WASM_TCGETS => TCGETS as c_ulong,
+        WASM_TCSETSW => TCSETSW as c_ulong,
         _otherwise => {
             unimplemented!("The ioctl {} is not yet implemented", wasm_ioctl);
         }
@@ -867,7 +867,7 @@ pub fn ___syscall180(ctx: &mut Ctx, _which: c_int, mut varargs: VarArgs) -> c_in
 
     let buf_ptr = emscripten_memory_pointer!(ctx.memory(0), buf) as _;
 
-    unsafe { pread(fd, buf_ptr, count as _, offset) as _ }
+    unsafe { pread(fd, buf_ptr, count as _, offset as libc::off_t) as _ }
 }
 
 // pwrite
@@ -883,7 +883,7 @@ pub fn ___syscall181(ctx: &mut Ctx, _which: c_int, mut varargs: VarArgs) -> c_in
     let offset: i64 = varargs.get(ctx);
 
     let buf_ptr = emscripten_memory_pointer!(ctx.memory(0), buf) as _;
-    let status = unsafe { pwrite(fd, buf_ptr, count as _, offset) as _ };
+    let status = unsafe { pwrite(fd, buf_ptr, count as _, offset as libc::off_t) as _ };
     debug!(
         "=> fd: {}, buf: {}, count: {}, offset: {} = status:{}",
         fd, buf, count, offset, status
@@ -1063,7 +1063,7 @@ pub fn ___syscall220(ctx: &mut Ctx, _which: i32, mut varargs: VarArgs) -> i32 {
             let upper_bound = std::cmp::min((*dirent).d_reclen, 255) as usize;
             let mut i = 0;
             while i < upper_bound {
-                *(dirp.add(pos + 11 + i) as *mut i8) = (*dirent).d_name[i];
+                *(dirp.add(pos + 11 + i) as *mut libc::c_char) = (*dirent).d_name[i];
                 i += 1;
             }
             // We set the termination string char

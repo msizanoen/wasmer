@@ -219,7 +219,7 @@ pub fn read_string_from_wasm(memory: &Memory, offset: u32) -> String {
 
 /// This function trys to find an entry in mapdir
 /// translating paths into their correct value
-pub fn get_cstr_path(ctx: &mut Ctx, path: *const i8) -> Option<std::ffi::CString> {
+pub fn get_cstr_path(ctx: &mut Ctx, path: *const c_char) -> Option<std::ffi::CString> {
     use std::collections::VecDeque;
 
     let path_str = unsafe { std::ffi::CStr::from_ptr(path).to_str().unwrap() }.to_string();

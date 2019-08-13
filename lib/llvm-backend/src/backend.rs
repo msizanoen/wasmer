@@ -6,7 +6,9 @@ use inkwell::{
     targets::{CodeModel, FileType, InitializationConfig, RelocMode, Target, TargetMachine},
     OptimizationLevel,
 };
+use lazy_static::lazy_static;
 use libc::c_char;
+use libloading::{Library, Symbol};
 use std::{
     any::Any,
     ffi::{c_void, CString},
@@ -30,6 +32,10 @@ use wasmer_runtime_core::{
     types::{LocalFuncIndex, SigIndex},
     vm, vmcalls,
 };
+
+lazy_static! {
+    static ref LIBGCC: Library = Library::new("libgcc_s.so.1").unwrap();
+}
 
 extern "C" {
     fn module_load(
@@ -109,11 +115,16 @@ fn get_callbacks() -> Callbacks {
             fn_name!("vm.memory.size.dynamic.import") => vmcalls::imported_dynamic_memory_size as _,
             fn_name!("vm.memory.grow.static.import") => vmcalls::imported_static_memory_grow as _,
             fn_name!("vm.memory.size.static.import") => vmcalls::imported_static_memory_size as _,
-
             fn_name!("vm.exception.trap") => throw_trap as _,
             fn_name!("vm.breakpoint") => throw_breakpoint as _,
 
-            _ => ptr::null(),
+            x => unsafe {
+                let sym: Symbol<*const vm::Func> = match LIBGCC.get(x.as_bytes()) {
+                    Ok(s) => s,
+                    Err(_) => return ptr::null(),
+                };
+                *sym
+            },
         }
     }
 
@@ -159,6 +170,14 @@ pub struct LLVMBackend {
 impl LLVMBackend {
     pub fn new(module: Module, _intrinsics: Intrinsics) -> (Self, LLVMCache) {
         Target::initialize_x86(&InitializationConfig {
+            asm_parser: true,
+            asm_printer: true,
+            base: true,
+            disassembler: true,
+            info: true,
+            machine_code: true,
+        });
+        Target::initialize_arm(&InitializationConfig {
             asm_parser: true,
             asm_printer: true,
             base: true,
