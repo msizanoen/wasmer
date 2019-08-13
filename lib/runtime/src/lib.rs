@@ -202,7 +202,6 @@ pub fn default_compiler() -> impl Compiler {
         "The `default-backend-X` features are mutually exclusive.  Please choose just one"
     );
 
-    #[cfg(feature = "default-backend-llvm")]
     use wasmer_llvm_backend::LLVMCompiler as DefaultCompiler;
 
     #[cfg(feature = "default-backend-singlepass")]

@@ -10,7 +10,7 @@ use libc::{clockid_t, time as libc_time, timegm as libc_timegm, tm as libc_tm};
 #[cfg(not(target_os = "windows"))]
 use std::ffi::CString;
 
-#[cfg(target_os = "windows")]
+//#[cfg(target_os = "windows")]
 use libc::time_t;
 
 #[cfg(target_os = "windows")]
@@ -236,9 +236,9 @@ pub fn _localtime(ctx: &mut Ctx, time_p: u32) -> c_int {
     //      https://stackoverflow.com/questions/19170721/real-time-awareness-of-timezone-change-in-localtime-vs-localtime-r
 
     let timespec = unsafe {
-        let time_p_addr = emscripten_memory_pointer!(ctx.memory(0), time_p) as *mut i64;
+        let time_p_addr = emscripten_memory_pointer!(ctx.memory(0), time_p) as *mut time_t;
         let seconds = *time_p_addr.clone();
-        time::Timespec::new(seconds, 0)
+        time::Timespec::new(seconds as i64, 0)
     };
     let result_tm = time::at(timespec);
 
@@ -309,7 +309,7 @@ pub fn _time(ctx: &mut Ctx, time_p: u32) -> i32 {
     debug!("emscripten::_time {}", time_p);
 
     unsafe {
-        let time_p_addr = emscripten_memory_pointer!(ctx.memory(0), time_p) as *mut i64;
+        let time_p_addr = emscripten_memory_pointer!(ctx.memory(0), time_p) as *mut time_t;
         libc_time(time_p_addr) as i32 // TODO review i64
     }
 }

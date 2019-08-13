@@ -359,7 +359,7 @@ pub fn ___syscall183(ctx: &mut Ctx, _which: c_int, mut varargs: VarArgs) -> i32 
 
     let buf_writer = buf_offset.deref(ctx.memory(0), 0, len as u32 + 1).unwrap();
     for (i, byte) in path_string.bytes().enumerate() {
-        buf_writer[i].set(byte as i8);
+        buf_writer[i].set(byte as libc::c_char);
     }
     buf_writer[len].set(0);
     buf_offset.offset() as i32

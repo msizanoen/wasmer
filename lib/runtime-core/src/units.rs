@@ -5,7 +5,7 @@ use std::{
 };
 
 pub const WASM_PAGE_SIZE: usize = 65_536;
-pub const WASM_MAX_PAGES: usize = 65_536;
+pub const WASM_MAX_PAGES: usize = 30000 /* 65_536*/;
 // From emscripten resize_heap implementation
 pub const WASM_MIN_PAGES: usize = 256;
 

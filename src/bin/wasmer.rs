@@ -19,7 +19,6 @@ use std::collections::HashMap;
 use structopt::StructOpt;
 
 use wasmer::*;
-use wasmer_clif_backend::CraneliftCompiler;
 #[cfg(feature = "backend-llvm")]
 use wasmer_llvm_backend::{LLVMCompiler, LLVMOptions};
 use wasmer_runtime::{
@@ -396,7 +395,7 @@ fn execute_wasm(options: &Run) -> Result<(), String> {
         Backend::Singlepass => Box::new(SinglePassCompiler::new()),
         #[cfg(not(feature = "backend-singlepass"))]
         Backend::Singlepass => return Err("The singlepass backend is not enabled".to_string()),
-        Backend::Cranelift => Box::new(CraneliftCompiler::new()),
+        Backend::Cranelift => panic!(),
         #[cfg(feature = "backend-llvm")]
         Backend::LLVM => Box::new(LLVMCompiler::new()),
         #[cfg(not(feature = "backend-llvm"))]
