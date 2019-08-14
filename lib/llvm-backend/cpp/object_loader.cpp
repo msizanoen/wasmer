@@ -1,4 +1,5 @@
 #include "object_loader.hh"
+#include "llvm/Support/DynamicLibrary.h"
 #include <iostream>
 #include <memory>
 
@@ -11,8 +12,36 @@
 #define HAVE_EHTABLE_SUPPORT 0
 #endif
 
+#if HAVE_EHTABLE_SUPPORT
 extern "C" void __register_frame(uint8_t *);
 extern "C" void __deregister_frame(uint8_t *);
+#else
+static void __register_frame(uint8_t *p) {
+  static bool Searched = false;
+  static void((*rf)(uint8_t *)) = 0;
+
+  if (!Searched) {
+    Searched = true;
+    *(void **)&rf =
+        llvm::sys::DynamicLibrary::SearchForAddressOfSymbol("__register_frame");
+  }
+  if (rf)
+    rf(p);
+}
+
+static void __deregister_frame(uint8_t *p) {
+  static bool Searched = false;
+  static void((*df)(uint8_t *)) = 0;
+
+  if (!Searched) {
+    Searched = true;
+    *(void **)&df = llvm::sys::DynamicLibrary::SearchForAddressOfSymbol(
+        "__deregister_frame");
+  }
+  if (df)
+    df(p);
+}
+#endif
 
 struct MemoryManager : llvm::RuntimeDyld::MemoryManager {
 public:
@@ -93,7 +122,7 @@ public:
                                 size_t size) override {
 // We don't know yet how to do this on Windows, so we hide this on compilation
 // so we can compile and pass spectests on unix systems
-#if !defined(_WIN32) && HAVE_EHTABLE_SUPPORT
+#if !defined(_WIN32)
     eh_frame_ptr = addr;
     eh_frame_size = size;
     eh_frames_registered = true;
@@ -104,7 +133,7 @@ public:
   virtual void deregisterEHFrames() override {
 // We don't know yet how to do this on Windows, so we hide this on compilation
 // so we can compile and pass spectests on unix systems
-#if !defined(_WIN32) && HAVE_EHTABLE_SUPPORT
+#if !defined(_WIN32)
     if (eh_frames_registered) {
       callbacks.visit_fde(eh_frame_ptr, eh_frame_size, __deregister_frame);
     }

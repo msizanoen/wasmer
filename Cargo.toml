@@ -98,3 +98,7 @@ wasi = ["wasmer-wasi"]
 [[example]]
 name = "plugin"
 crate-type = ["bin"]
+
+[profile.release]
+codegen-units = 1
+debug = true
