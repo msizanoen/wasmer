@@ -41,6 +41,9 @@ fn write_bytes<T: Write>(
     let mut bytes_written = 0;
     for iov in iovs_arr_cell {
         let iov_inner = iov.get();
+        if iov_inner.buf_len == 0 {
+            continue;
+        }
         let bytes = iov_inner.buf.deref(memory, 0, iov_inner.buf_len)?;
         write_loc
             .write(&bytes.iter().map(|b_cell| b_cell.get()).collect::<Vec<u8>>())
@@ -65,6 +68,9 @@ fn read_bytes<T: Read>(
 
     for iov in iovs_arr_cell {
         let iov_inner = iov.get();
+        if iov_inner.buf_len == 0 {
+            continue;
+        }
         let bytes = iov_inner.buf.deref(memory, 0, iov_inner.buf_len)?;
         let mut raw_bytes: &mut [u8] =
             unsafe { &mut *(bytes as *const [_] as *mut [_] as *mut [u8]) };

@@ -436,7 +436,9 @@ impl WasiFs {
                                 cd.push(component);
                                 cd
                             };
-                            let metadata = file.symlink_metadata().ok().ok_or(__WASI_EINVAL)?;
+                            let metadata = file
+                                .symlink_metadata()
+                                .map_err(|e| types::WasiFsError::from(e).into_wasi_err())?;
                             let file_type = metadata.file_type();
                             // we want to insert newly opened dirs and files, but not transient symlinks
                             // TODO: explain why (think about this deeply when well rested)
