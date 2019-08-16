@@ -1,0 +1,5 @@
+[build]
+rustflags = [
+    '-L', 'native=@LIBUNWIND_BUILD@/lib',
+    '-l', 'static=unwind',
+]

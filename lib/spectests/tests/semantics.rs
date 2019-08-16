@@ -1,7 +1,8 @@
 #[cfg(test)]
 mod tests {
     use wabt::wat2wasm;
-    use wasmer_clif_backend::CraneliftCompiler;
+    //use wasmer_clif_backend::CraneliftCompiler;
+    use wasmer_llvm_backend::LLVMCompiler;
     use wasmer_runtime_core::{
         error::{CallError, RuntimeError},
         import::ImportObject,
@@ -22,7 +23,7 @@ mod tests {
       (elem (;0;) (i32.const 0) 0))
     "#;
         let wasm_binary = wat2wasm(module_str.as_bytes()).expect("WAST not valid or malformed");
-        let module = wasmer_runtime_core::compile_with(&wasm_binary[..], &CraneliftCompiler::new())
+        let module = wasmer_runtime_core::compile_with(&wasm_binary[..], &LLVMCompiler::new())
             .expect("WASM can't be compiled");
         let instance = module
             .instantiate(&ImportObject::new())
