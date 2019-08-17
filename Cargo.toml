@@ -65,7 +65,7 @@ glob = "0.3.0"
 rustc_version = "0.2.3"
 
 [features]
-default = ["fast-tests", "wasi",
+default = ["fast-tests", "wasi","backend-llvm"
 #"backend-cranelift"
 ]
 "loader-kernel" = ["wasmer-kernel-loader"]

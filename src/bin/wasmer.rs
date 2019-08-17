@@ -119,7 +119,8 @@ struct Run {
     // Disable the cache
     #[structopt(
         long = "backend",
-        default_value = "cranelift",
+        //default_value = "cranelift",
+        default_value = "llvm",
         raw(possible_values = "Backend::variants()", case_insensitive = "true")
     )]
     backend: Backend,
