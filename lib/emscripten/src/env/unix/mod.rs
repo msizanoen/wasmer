@@ -283,7 +283,11 @@ pub fn _getaddrinfo(
                         .deref(ctx.memory(0), 0, str_size as _)
                         .unwrap();
                     for (i, b) in canonname_bytes.into_iter().enumerate() {
+<<<<<<< HEAD
                         guest_canonname_writer[i].set(*b as libc::c_char)
+=======
+                        guest_canonname_writer[i].set(*b as _)
+>>>>>>> upstream/master
                     }
 
                     guest_canonname

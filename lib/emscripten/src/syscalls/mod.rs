@@ -97,7 +97,7 @@ pub fn ___syscall6(ctx: &mut Ctx, _which: c_int, mut varargs: VarArgs) -> c_int 
 pub fn ___syscall12(ctx: &mut Ctx, _which: c_int, mut varargs: VarArgs) -> c_int {
     debug!("emscripten::___syscall12 (chdir) {}", _which);
     let path_ptr = varargs.get_str(ctx);
-    let real_path_owned = get_cstr_path(ctx, path_ptr);
+    let real_path_owned = get_cstr_path(ctx, path_ptr as *const _);
     let real_path = if let Some(ref rp) = real_path_owned {
         rp.as_c_str().as_ptr()
     } else {
@@ -168,13 +168,13 @@ pub fn ___syscall38(ctx: &mut Ctx, _which: c_int, mut varargs: VarArgs) -> i32 {
     debug!("emscripten::___syscall38 (rename)");
     let old_path = varargs.get_str(ctx);
     let new_path = varargs.get_str(ctx);
-    let real_old_path_owned = get_cstr_path(ctx, old_path);
+    let real_old_path_owned = get_cstr_path(ctx, old_path as *const _);
     let real_old_path = if let Some(ref rp) = real_old_path_owned {
         rp.as_c_str().as_ptr()
     } else {
         old_path
     };
-    let real_new_path_owned = get_cstr_path(ctx, new_path);
+    let real_new_path_owned = get_cstr_path(ctx, new_path as *const _);
     let real_new_path = if let Some(ref rp) = real_new_path_owned {
         rp.as_c_str().as_ptr()
     } else {
@@ -194,7 +194,7 @@ pub fn ___syscall38(ctx: &mut Ctx, _which: c_int, mut varargs: VarArgs) -> i32 {
 pub fn ___syscall40(ctx: &mut Ctx, _which: c_int, mut varargs: VarArgs) -> c_int {
     debug!("emscripten::___syscall40 (rmdir)");
     let pathname_addr = varargs.get_str(ctx);
-    let real_path_owned = get_cstr_path(ctx, pathname_addr);
+    let real_path_owned = get_cstr_path(ctx, pathname_addr as *const _);
     let real_path = if let Some(ref rp) = real_path_owned {
         rp.as_c_str().as_ptr()
     } else {
@@ -535,7 +535,7 @@ pub fn ___syscall195(ctx: &mut Ctx, _which: c_int, mut varargs: VarArgs) -> c_in
     let pathname_addr = varargs.get_str(ctx);
     let buf: u32 = varargs.get(ctx);
 
-    let real_path_owned = get_cstr_path(ctx, pathname_addr);
+    let real_path_owned = get_cstr_path(ctx, pathname_addr as *const _);
     let real_path = if let Some(ref rp) = real_path_owned {
         rp.as_c_str().as_ptr()
     } else {
